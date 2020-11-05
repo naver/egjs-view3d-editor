@@ -1,6 +1,15 @@
 # egjs-view3d-editor
 
-3D environment & model editor for [@egjs/view3d](https://github.com/naver/egjs-view3d)
+3D environment & model preset generator for @egjs/view3d
+
+- [🔗 View3D Editor](https://naver.github.io/egjs-view3d-editor/)
+- [🔗 View3D](https://github.com/naver/egjs-view3d)
+
+![demo1](./images/demo1.png)
+> 3D Model by [luyssport](https://sketchfab.com/3d-models/che-1e529f4b8efc4f20925957a9a4208dcd), CC BY-NC-SA 4.0
+
+![demo2](./images/demo2.png)
+> 3D Model by [Daniel Gryningstjerna](https://sketchfab.com/3d-models/robot-c46bd21f1d284ae0b4bda7ac577448c2), CC BY 4.0
 
 # License
 
