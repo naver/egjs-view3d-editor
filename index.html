@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <script type="text/javascript" src="./lib/controlKit.min.js"></script>
+    <link rel="stylesheet" href="./css/index.css">
+    <link rel="stylesheet" href="./css/drop.css">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@sweetalert2/theme-borderless/borderless.css">
+    <title>View3D Editor</title>
+    <script>
+      if (!(window.File && window.FileReader && window.FileList && window.Blob)) {
+        alert("Browser doesn't support File API");
+      }
+    </script>
+  </head>
+  <body>
+    <div id="container">
+      <div id="canvas-wrapper">
+        <canvas id="app"></canvas>
+      </div>
+      <div id="drop-indicator">
+        <span>Drag glTF 2.0 files or folder anywhere, or</span>
+        <input type="file" id="file-fallback" multiple><label id="file-label" for="file-fallback"><a>Upload</a></label>
+      </div>
+    </div>
+    <script type="text/javascript" src="dist/app.js"></script>
+    <script type="text/javascript">
+      var app = new App();
+    </script>
+  </body>
+</html>
