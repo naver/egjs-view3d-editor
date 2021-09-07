@@ -10,9 +10,9 @@
     "url": "https://github.com/naver/egjs-view3d-editor"
   },
   "dependencies": {
-    "@egjs/view3d": "^0.0.2",
+    "@egjs/view3d": "^1.1.0",
     "controlkit": "^0.1.9",
-    "mesh-simplifier": "0.0.8",
+    "mesh-simplifier": "^1.0.0",
     "simple-dropzone": "^0.7.1",
     "sweetalert2": "^9.13.1",
     "three": "^0.116.1"

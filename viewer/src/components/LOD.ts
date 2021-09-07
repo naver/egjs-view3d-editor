@@ -27,7 +27,7 @@ class LOD {
 
     // Synchronous
     this.simplifier.simplify(adaptedModel);
-    this.simplifiedModel = new Model(adaptedModel.object, model.cameras, []);
+    this.simplifiedModel = new Model({ scenes: [adaptedModel.object] });
 
     console.log(`Simplify - took ${this.simplifier.timeConsumed}ms`);
 
