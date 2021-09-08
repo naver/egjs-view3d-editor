@@ -7,6 +7,7 @@
 import View3D, {
   THREE,
   GLTFLoader,
+  DracoLoader,
   ShadowPlane,
   OrbitControl,
   AutoDirectionalLight,
@@ -21,7 +22,8 @@ import { LightOption } from "./types";
 
 class App {
   private _viewer: View3D;
-  private _loader: GLTFLoader;
+  private _gltfLoader: GLTFLoader;
+  private _dracoLoader: DracoLoader;
   private _light1: AutoDirectionalLight;
   private _light2: AutoDirectionalLight;
   private _light3: AutoDirectionalLight;
@@ -69,7 +71,8 @@ class App {
 
   constructor() {
     this._viewer = new View3D("#app");
-    this._loader = new GLTFLoader();
+    this._gltfLoader = new GLTFLoader();
+    this._dracoLoader = new DracoLoader();
     // @ts-ignore
     this._controlKit = new ControlKit();
 
@@ -145,7 +148,7 @@ class App {
     this._initControl();
 
     // Load default model
-    this._loader.load("./assets/moon.glb", {}).then(this._loadModel);
+    this._gltfLoader.load("./assets/moon.glb").then(this._loadModel);
   }
 
   private _initControl() {
@@ -164,11 +167,11 @@ class App {
     const shadowPlane = this._shadowPlane;
 
     const updateLight = (light, helper, values) => {
-      light.position.set(
-        values.x,
-        values.y,
-        -values.z
-      )
+      light.direction.set(
+        -values.x,
+        -values.y,
+        values.z
+      );
       light.fit(viewer.model);
       light.light.updateMatrixWorld();
       helper.update();
@@ -279,9 +282,10 @@ class App {
     const pageWrapper = document.querySelector("#container");
     const fileInput = document.querySelector("#file-fallback");
     const dropzone = new SimpleDropzone(pageWrapper, fileInput);
-    const loader = this._loader;
+    const gltfLoader = this._gltfLoader;
+    const drcLoader = this._dracoLoader;
 
-    dropzone.on("drop", ({ files }) => {
+    dropzone.on("drop", ({ files: fileMap }) => {
       Swal.fire({
         title: "Loading your model...",
         showCancelButton: false,
@@ -292,17 +296,36 @@ class App {
         onBeforeOpen: () => { Swal.showLoading(); }
       });
 
+      const files = Array.from(fileMap) as [string, File][];
+      const isDRC = files.some(([name]) => name.endsWith(".drc"));
 
-      loader.loadFromFiles(Array.from(files).map(([name, file]) => file), {})
-        .then(model => {
-          this._loadModel(model);
-        })
-        .catch(e => {
-          this._showError(e);
-        })
-        .finally(() => {
-          Swal.close();
-        });
+      if (isDRC) {
+        const [_, drcFile] = files.find(([name]) => name.endsWith(".drc"))!;
+        const fileURL = URL.createObjectURL(drcFile);
+
+        drcLoader.load(fileURL)
+          .then(model => {
+            this._loadModel(model);
+          })
+          .catch(e => {
+            this._showError(e);
+          })
+          .finally(() => {
+            Swal.close();
+            URL.revokeObjectURL(fileURL);
+          });
+      } else {
+        gltfLoader.loadFromFiles(files.map(([name, file]) => file))
+          .then(model => {
+            this._loadModel(model);
+          })
+          .catch(e => {
+            this._showError(e);
+          })
+          .finally(() => {
+            Swal.close();
+          });
+      }
     });
   }
 
@@ -327,9 +350,9 @@ class App {
     const light2 = new AutoDirectionalLight(envOptions.light2.color, envOptions.light2.intensity);
     const light3 = new AutoDirectionalLight(envOptions.light3.color, envOptions.light3.intensity);
 
-    light1.position.set(envOptions.light1.x, envOptions.light1.y, envOptions.light1.z);
-    light2.position.set(envOptions.light2.x, envOptions.light2.y, envOptions.light2.z);
-    light3.position.set(envOptions.light3.x, envOptions.light3.y, envOptions.light3.z);
+    light1.direction.set(-envOptions.light1.x, -envOptions.light1.y, -envOptions.light1.z);
+    light2.direction.set(-envOptions.light2.x, -envOptions.light2.y, -envOptions.light2.z);
+    light3.direction.set(-envOptions.light3.x, -envOptions.light3.y, -envOptions.light3.z);
 
     light1.light.castShadow = envOptions.light1.castShadow;
     light2.light.castShadow = envOptions.light2.castShadow;
@@ -352,9 +375,6 @@ class App {
 
     // Controls setup
     viewer.controller.add(new OrbitControl());
-    // const autoControl = new AutoControl();
-    // autoControl.disableOnInterrupt = true;
-    // viewer.controller.add(autoControl);
 
     this._ambient = ambient;
     this._light1 = light1;
@@ -470,7 +490,6 @@ class App {
       const simplifiedModel = lod.simplifiedModel!;
 
       simplifiedModel.fixSkinnedBbox = true;
-      simplifiedModel.moveToOrigin();
 
       new GLTFExporter().parse(simplifiedModel.scene, gltf => {
         const tempAnchorTag = document.createElement("a");
