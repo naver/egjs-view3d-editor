@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "description": "@egjs/view3d's editor",
   "scripts": {
-    "dev": "rollup -w --config ./viewer/rollup.config.js"
+    "dev": "rollup -c ./viewer/rollup.config.dev.js",
+    "build": "rollup -c ./viewer/rollup.config.js",
+    "release": "npm run build && gh-pages -d viewer/ --add --remote upstream"
   },
   "repository": {
     "type": "git",
